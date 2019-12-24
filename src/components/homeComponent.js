@@ -3,7 +3,8 @@ import {
   Container, Row, Col
 } from 'reactstrap';
 import { uploadVideo } from '../redux/action/uploadVideoAction';
-import { setIsloadingTrue } from '../redux/action/loadingAction'
+import { setIsloadingTrue } from '../redux/action/loadingAction';
+import {clearUploadedMessage} from '../redux/action/uploadedVideoMessageAction'
 import { connect } from 'react-redux';
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from 'react-loader-spinner';
@@ -36,6 +37,9 @@ class HomeComponent extends React.Component {
     }, () => {
       this.validateField(name, value)
     })
+    if(this.props.isUploadedSuccess){
+      this.props.clearUploadedMessage();
+    }
   }
   handleFileChange = (event) => {
     let name = event.target.name;
@@ -47,6 +51,10 @@ class HomeComponent extends React.Component {
     }, () => {
       this.validateField(name, selectedFile)
     })
+    if(this.props.isUploadedSuccess){
+      this.props.clearUploadedMessage();
+    }
+   
 
   }
   handleFormSubmit = () => {
@@ -99,6 +107,11 @@ class HomeComponent extends React.Component {
     return (error.length === 0 ? '' : 'has-error');
   }
 
+  componentWillUnmount(){
+    if(this.props.isUploadedSuccess){
+      this.props.clearUploadedMessage();
+    }
+  }
   render() {
     return (
       <Fragment>
@@ -112,6 +125,7 @@ class HomeComponent extends React.Component {
                     <input type="text" name="title" onChange={this.handleChange}  className={`form-control ${this.errorClass(
                   this.state.formErrors.title
                 )}`}  id="formGroupExampleInput" placeholder="Please Enter Title" />
+                <label className="info-text">Min 6 Characters</label>
                   </div>
                   <div className="form-group">
                     <label>Description:</label>
@@ -120,6 +134,7 @@ class HomeComponent extends React.Component {
                       this.state.formErrors.description
                     )}`}
                    ></textarea>
+                    <label className="info-text">Min 6 Characters</label>
                   </div>
                   <div className="form-group">
                     <label >Example file input</label>
@@ -127,6 +142,10 @@ class HomeComponent extends React.Component {
                   </div>
                   <button disabled={!this.state.formValid} type="submit" className="btn btn-primary" onClick={this.handleFormSubmit}>Submit</button>
                 </div>
+                <div>{this.props.isUploadedSuccess&&
+                    <div class="alert alert-success" role="alert">
+  Video Successfully Uploaded
+</div>}</div>
               </div>
             </Col>
           </Row>
@@ -140,6 +159,7 @@ class HomeComponent extends React.Component {
                 visible={this.props.isLoading}
               />
             </div>
+                 
           </Row>
 
         </Container>
@@ -150,12 +170,14 @@ class HomeComponent extends React.Component {
 
 const mapDispatchToProps = {
   uploadVideo: uploadVideo,
-  setIsloadingTrue: setIsloadingTrue
+  setIsloadingTrue: setIsloadingTrue,
+  clearUploadedMessage:clearUploadedMessage
 }
 
 const mapStateToProps = function (state) {
   return {
-    isLoading: state.isLoading.isLoading
+    isLoading: state.isLoading.isLoading,
+    isUploadedSuccess:state.isUploadedSuccess.isUploadedSuccess
   }
 }
 
